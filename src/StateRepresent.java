@@ -4,14 +4,14 @@ import java.util.*;
 public class StateRepresent {
 	
 	public byte[][] states ={
-			{7, 1, 7, 1, 7, 1, 7, 1},
-			{1, 7, 1, 7, 1, 7, 1, 7},
-			{7, 1, 7, 1, 7, 1, 7, 1},
-			{0, 7, 0, 7, 0, 7, 0, 7},
-		    {7, 0, 7, 0, 7, 0, 7, 0},
-		    {2, 7, 2, 7, 2, 7, 2, 7},
+			{2, 7, 2, 7, 2, 7, 2, 7},
 			{7, 2, 7, 2, 7, 2, 7, 2},
-			{2, 7, 2, 7, 2, 7, 2, 7}};
+			{2, 7, 2, 7, 2, 7, 2, 7},
+			{7, 0, 7, 0, 7, 0, 7, 0},
+		    {0, 7, 0, 7, 0, 7, 0, 7},
+		    {7, 1, 7, 1, 7, 1, 7, 1},
+			{1, 7, 1, 7, 1, 7, 1, 7},
+			{7, 1, 7, 1, 7, 1, 7, 1}};
 	int depth;
 	StateRepresent ansestor;
 	
@@ -66,15 +66,18 @@ public class StateRepresent {
 		ArrayList<StateRepresent> MoveList = new ArrayList<StateRepresent>();
 		StateRepresent newStateRepresent;
 		
-		if (this.states[i][j] == 1) 
-			{
-			  //if (this.MoveCheck(i, j, (i+1), (j+1), newStateRepresent))
-				//  MoveList.add(newStateRepresent);			  
-			  //if (this.MoveCheck(i, j, (i+1), (j-1), newStateRepresent))
-			////	  MoveList.add(newStateRepresent);		  
+		if (this.states[i][j] == 2) 
+			{		
+			newStateRepresent = this.MoveCheck(i, j, (i+1), (j+1));
+			  if (newStateRepresent != null)
+				  MoveList.add(newStateRepresent);
+			  
+			newStateRepresent = this.MoveCheck(i, j, (i+1), (j-1));
+		      if (newStateRepresent != null)
+			      MoveList.add(newStateRepresent);
 			}
 			
-		 else if ((this.states[i][j] == 2))
+		 else if ((this.states[i][j] == 1))
 		 	{
 			 
 			  newStateRepresent = this.MoveCheck(i, j, (i-1), (j+1));
@@ -107,7 +110,7 @@ public class StateRepresent {
 	}
 	
 	//
-	private ArrayList<StateRepresent> EatCheck(int i_, int j_)
+	public ArrayList<StateRepresent> EatCheck(int i_, int j_)
 	{
 		ArrayList<StateRepresent> MoveList = new ArrayList<StateRepresent>();
 		ArrayList<StateRepresent> MoveList_ = new ArrayList<StateRepresent>();
@@ -132,22 +135,22 @@ public class StateRepresent {
 		else
 		    opposite_colour = 1;
 		
-		for (int k = 0; k < 3; k++)
+		for (int k = 0; k < 4; k++)
 		{	
-				i_eat = options_of_move[0][k];
-				i_new = options_of_move[1][k];
-				j_eat = options_of_move[2][k];
-				j_new = options_of_move[3][k];
+				i_eat = i_ + options_of_move[0][k];
+				i_new = i_ + options_of_move[1][k];
+				j_eat = j_ + options_of_move[2][k];
+				j_new = j_ + options_of_move[3][k];
 		
 		    //eat if possible
 			if ((this.BorderCheck(i_new, j_new))&&(states[i_eat][j_eat] == opposite_colour)&&(states[i_new][j_new]==0))
 			{
-				byte[][] states_ = states;
-				states_[i_][j_] = 0;
-				states_[i_eat][j_eat] = 0;
-				states_[i_new][j_new] = this.states[i_][j_];
+				newStateRepresent  = new StateRepresent(this.states, this.depth, this);
+				
+				newStateRepresent.states[i_][j_] = 0;
+				newStateRepresent.states[i_eat][j_eat] = 0;
+				newStateRepresent.states[i_new][j_new] = this.states[i_][j_];
 				    
-				newStateRepresent = new StateRepresent(states_,this.depth,this);
 				    
 				MoveList_ = newStateRepresent.EatCheck(i_new, j_new);
 				
