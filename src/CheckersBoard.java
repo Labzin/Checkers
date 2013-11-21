@@ -1,20 +1,43 @@
 import javax.imageio.ImageIO;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DragGestureEvent;
+import java.awt.dnd.DragGestureListener;
+import java.awt.dnd.DragGestureRecognizer;
+import java.awt.dnd.DragSource;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import javax.swing.TransferHandler;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
+import java.util.TooManyListenersException;
+import java.util.concurrent.atomic.AtomicReference;
 
-public class CheckersBoard extends JFrame {
+public class CheckersBoard extends JFrame implements DragGestureListener, Transferable  {
 
 	private JPanel mainPanel = new JPanel();
 	private JPanel downPanel = new JPanel();
@@ -28,7 +51,13 @@ public class CheckersBoard extends JFrame {
 	private ImageIcon bPiece;
 	private ImageIcon wPiece;
 	
+	AtomicReference<CheckersBoard> linkBoard = new AtomicReference<CheckersBoard>();
+	
 	StateRepresent state;
+	
+	//drag and drop
+	MouseListener listenerMouse;
+	DragSource dragSource =  new DragSource();
 	
     public CheckersBoard(StateRepresent state) {
         try {
@@ -39,7 +68,10 @@ public class CheckersBoard extends JFrame {
 			e.printStackTrace();
 		}
         this.state = state;
-
+        
+        linkBoard.set(this);
+        
+     
         wPiece = new ImageIcon("n:/WPieceS.jpg");
         bPiece = new ImageIcon("n:/BPieceS.jpg");
 
@@ -70,7 +102,7 @@ public class CheckersBoard extends JFrame {
 			{
 	            for (int col = 0; col < 8; col++) 
 	            {
-	            	 if ((col + row) % 2 == 0) {
+	            	 if ((row + col) % 2 == 0) {
 	            		 spots[row][col] = new PanelIm(wField);
 	                 } 
 	            	 else {
@@ -78,11 +110,22 @@ public class CheckersBoard extends JFrame {
 	                 }
 	            	 
 	            	 spotsLabels[row][col] = new JLabel();
+	            	 
+	            	 	            	           	 
+	            	 spotsLabels[row][col].setName(String.valueOf(row) +" "+ String.valueOf(col));
+	            	 spots[row][col].setName(String.valueOf(row) +" "+ String.valueOf(col));
+	            	 
 	            	 spots[row][col].add(spotsLabels[row][col]);
+        	 
+	            	//drag and drop
+	            	 dragSource.createDefaultDragGestureRecognizer(spotsLabels[row][col], DnDConstants.ACTION_MOVE, this);
+	            	 new MyDropTargetListener(spots[row][col], linkBoard);
 	            	 
 	            	 mainPanel.add(spots[row][col]);	
 	            }	                	
 	         }
+									
+							
 			
 			//set numbers
 			leftPanel.setLayout(new GridLayout(8, 0));
@@ -98,8 +141,9 @@ public class CheckersBoard extends JFrame {
 			Panel.add(downPanel, BorderLayout.SOUTH);
 		}
 	
-	private void Draw()
+	public void Draw()
 	{
+		System.out.println("!!!!!!!!!!!!");
 		for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
             	switch (state.states[row][col]){
@@ -137,5 +181,74 @@ public class CheckersBoard extends JFrame {
             //draws image to background to scale of frame
             g.drawImage(image, 0, 0, null);
         	}
-    	}
+    	} 
+             	
+
+    //catch drag event!
+	@Override
+	public void dragGestureRecognized(DragGestureEvent event) {
+		
+		JLabel label = (JLabel) event.getComponent();
+		System.out.println(label.getName());
+		
+		
+		Cursor cursor = null;
+        if (event.getDragAction() == DnDConstants.ACTION_COPY) {
+            cursor = DragSource.DefaultCopyDrop;
+        }
+        
+        event.startDrag(cursor, this);
 	}
+
+	//catch drop event!!
+	class MyDropTargetListener extends DropTargetAdapter {
+
+	        private DropTarget dropTarget;
+	        private JPanel panel;
+	        public AtomicReference<CheckersBoard> board;
+	        
+	     public MyDropTargetListener(JPanel panel, AtomicReference<CheckersBoard>  board) {
+	        this.panel = panel;
+	        this.board = board; 
+	        
+	        dropTarget = new DropTarget(panel, DnDConstants.ACTION_COPY, 
+	            this, true, null);
+	      }
+
+
+	      public void drop(DropTargetDropEvent event) {
+	        try {
+	        	//System.out.println(label.getName());
+	        	//name.set(label.getName()); 
+	        	System.out.println(panel.getName());
+	        	board.get().Draw();
+	        	//this.label.setIcon(null);
+	          event.rejectDrop();
+	        } catch (Exception e) {
+	          e.printStackTrace();
+	          event.rejectDrop();
+	        }
+	      }
+	    }
+	
+	
+	@Override
+	public Object getTransferData(DataFlavor flavor)
+			throws UnsupportedFlavorException, IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public DataFlavor[] getTransferDataFlavors() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isDataFlavorSupported(DataFlavor flavor) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+}
