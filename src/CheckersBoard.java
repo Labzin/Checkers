@@ -46,6 +46,7 @@ public class CheckersBoard extends JFrame {
     }
 	
 	public void Start() {
+			
         setTitle("Board");
 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -97,9 +98,8 @@ public class CheckersBoard extends JFrame {
 			Panel.add(downPanel, BorderLayout.SOUTH);
 		}
 	
-	private  void Draw()
+	private void Draw()
 	{
-
 		for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
             	switch (state.states[row][col]){
@@ -107,10 +107,10 @@ public class CheckersBoard extends JFrame {
     			case 1: spotsLabels[row][col].setIcon(wPiece);
     					break;
     			//black piece
-    					
     			case 2: spotsLabels[row][col].setIcon(bPiece);
     					break;
-    			default: break;	
+    			default: spotsLabels[row][col].setIcon(null);
+    					break;
             	}
             }
 		}

@@ -28,14 +28,18 @@ public class Hello_world {
 			
 			Repr.states = states;
 			ArrayList<StateRepresent> Moves = new ArrayList<StateRepresent>();
+			
+			CheckersBoard Board = new CheckersBoard(Repr);
+			Board.Start();
+			
 			Moves =	Repr.EatCheck(2 ,2);
 			
 			for (int i=0; i < Moves.size(); i++) 
 			{ 
 				System.in.read();
 				Moves.get(i).PositionPrint();
-				CheckersBoard Board = new CheckersBoard(Moves.get(i));
-				Board.Start();		
+				
+				Board.DrawState(Moves.get(i));		
 			}
 			
 					
