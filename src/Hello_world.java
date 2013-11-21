@@ -20,8 +20,8 @@ public class Hello_world {
 					{7, 2, 7, 2, 7, 2, 7, 2},
 					{2, 7, 2, 7, 2, 7, 2, 7},
 					{7, 1, 7, 0, 7, 0, 7, 0},
-				    {0, 7, 0, 7, 0, 7, 0, 7},
-				    {0, 1, 7, 1, 7, 1, 7, 1},
+				    {0, 7, 0, 7, 1, 7, 0, 7},
+				    {7, 1, 7, 1, 7, 0, 7, 1},
 					{1, 7, 0, 7, 1, 7, 1, 7},
 					{7, 1, 7, 1, 7, 1, 7, 1}};
 			
@@ -32,17 +32,22 @@ public class Hello_world {
 			CheckersBoard Board = new CheckersBoard(Repr);
 			Board.Start();
 			
-			Moves =	Repr.EatCheck(2 ,2);
+			Moves =	Repr.SuccessorsFunc(2);//.EatCheck(2 ,0);
 			
 			for (int i=0; i < Moves.size(); i++) 
 			{ 
-				System.in.read();
+				System.in.read();				
+				System.out.println(i);
+				
+				 Board = new CheckersBoard(Moves.get(i));
+				Board.Start();
+				
 				Moves.get(i).PositionPrint();
 				
-				Board.DrawState(Moves.get(i));		
+				//Board.DrawState(Moves.get(i));		
 			}
 			
-					
+			
 			} catch (IOException ex) {
 							     ex.printStackTrace();
 		}

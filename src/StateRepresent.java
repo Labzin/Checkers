@@ -38,26 +38,59 @@ public class StateRepresent {
 	    }
 	}
 	
-	
-	public ArrayList<StateRepresent> SuccessorsFunc(boolean colour_of_turn)
+	//white = 1, black = 2 
+	public ArrayList<StateRepresent> SuccessorsFunc(int colour_of_turn)
 	{
-		ArrayList<StateRepresent> SList = new ArrayList<StateRepresent>();
+		//list of potential moves
+		ArrayList<StateRepresent> MoveList = new ArrayList<StateRepresent>();
+		ArrayList<StateRepresent> MoveList_ = new ArrayList<StateRepresent>();
+		//list of potential takes
+		ArrayList<StateRepresent> TakeList = new ArrayList<StateRepresent>();
+		ArrayList<StateRepresent> TakeList_ = new ArrayList<StateRepresent>();
 		
 		for (int i =0;i<8;i++ )
 		   {
 		    for (int j = 0; j<8;j++) {
 		    	   //white turn
-				   if ((this.states[i][j] == 1)||colour_of_turn)
-				   {					   
+				   if (this.states[i][j] == colour_of_turn)
+				   {
+					   //check for possible takes
+					   TakeList_ = EatCheck(i,j);
+					   if (!TakeList_.isEmpty())
+					   		TakeList.addAll(TakeList_);
+					   
+					   //if there is no possible takes, then check moves
+					   if (TakeList.isEmpty())
+						   MoveList_ = MoveFunction(i,j);
+					   	   if (!MoveList_.isEmpty())
+					   	   	  MoveList.addAll(MoveList_);
 				   }
 				   //black turn
-				   else if ((this.states[i][j] == 2)||(!colour_of_turn))
-				   {}
+				   else if (this.states[i][j] == colour_of_turn)
+				   {
+					   //check for possible takes
+					   TakeList_ = EatCheck(i,j);
+					   if (!TakeList_.isEmpty())
+					   		TakeList.addAll(TakeList_);
+					   
+					   //if there is no possible takes, then check moves
+					   if (TakeList.isEmpty())
+						   MoveList_ = MoveFunction(i,j);
+					   	   if (!MoveList_.isEmpty())
+					   	   	  MoveList.addAll(MoveList_);
+				   }
 				   else{}			   				
 		    }
 		}
-				
-		return SList;
+		
+		//if there is possible takes, return takes
+		if (!TakeList.isEmpty())
+			return TakeList;
+		//if there is no possible takes, return moves
+		else
+			return MoveList;
+	    
+		
 	}
 	
 	//create of possible moves for position
