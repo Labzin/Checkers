@@ -32,6 +32,8 @@ import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.util.TooManyListenersException;
@@ -51,8 +53,13 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 	private ImageIcon bPiece;
 	private ImageIcon wPiece;
 	
+	//cursors for drug and drop
+	Cursor cursorW;
+	Cursor cursorB;
+	
 	AtomicReference<CheckersBoard> linkBoard = new AtomicReference<CheckersBoard>();
 	
+	//actual state of the board
 	StateRepresent state;
 	
 	//drag and drop
@@ -61,6 +68,7 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 	
     public CheckersBoard(StateRepresent state) {
         try {
+        	//images for fields 
         	this.wField = ImageIO.read(new File("n:/WField.jpg"));
 			this.bField = ImageIO.read(new File("n:/BField.jpg"));
 		} catch (IOException e) {
@@ -71,7 +79,15 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
         
         linkBoard.set(this);
         
-     
+        //cursor for drag and drop
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Image imageW = toolkit.getImage("n:/WCursor.gif");
+        cursorW = toolkit.createCustomCursor(imageW , new Point(0, 0), "img");
+        
+        Image imageB = toolkit.getImage("n:/BCursor.gif");
+        cursorB = toolkit.createCustomCursor(imageB , new Point(0, 0), "img"); 
+        
+        //icons for jLabel
         wPiece = new ImageIcon("n:/WPieceS.jpg");
         bPiece = new ImageIcon("n:/BPieceS.jpg");
 
@@ -191,13 +207,19 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 		JLabel label = (JLabel) event.getComponent();
 		System.out.println(label.getName());
 		
+		int i = Character.getNumericValue(label.getName().charAt(0));
+		int j = Character.getNumericValue(label.getName().charAt(2));
+		spotsLabels[i][j].setIcon(null);
 		
-		Cursor cursor = null;
-        if (event.getDragAction() == DnDConstants.ACTION_COPY) {
-            cursor = DragSource.DefaultCopyDrop;
-        }
-        
-        event.startDrag(cursor, this);
+		
+		//Cursor cursor = null;
+        //if (event.getDragAction() == DnDConstants.ACTION_COPY) {
+        //    cursor = DragSource.DefaultCopyDrop;
+        //}
+        if (state.states[i][j] == 1)
+        		event.startDrag(cursorW, this);
+        else 
+        		event.startDrag(cursorB, this);
 	}
 
 	//catch drop event!!
