@@ -16,24 +16,25 @@ public class Hello_world {
 			
 			
 			byte[][] states = {
-					{2, 7, 2, 7, 2, 7, 2, 7},
-					{7, 2, 7, 2, 7, 2, 7, 2},
-					{2, 7, 2, 7, 2, 7, 2, 7},
-					{7, 1, 7, 1, 7, 0, 7, 0},
+					{0, 7, 0, 7, 2, 7, 2, 7},
+					{7, 0, 7, 2, 7, 2, 7, 2},
+					{0, 7, 0, 7, 1, 7, 0, 7},
+					{7, 1, 7, 1, 7, 1, 7, 0},
 				    {0, 7, 0, 7, 0, 7, 0, 7},
-				    {7, 1, 7, 1, 7, 0, 7, 1},
-					{1, 7, 1, 7, 1, 7, 1, 7},
-					{7, 1, 7, 1, 7, 1, 7, 1}};
+				    {7, 0, 7, 2, 7, 1, 7, 3},
+					{0, 7, 0, 7, 1, 7, 0, 7},
+					{7, 4, 7, 0, 7, 0, 7, 1}};
 			
 			
 			Repr.states = states;
 			ArrayList<StateRepresent> Moves = new ArrayList<StateRepresent>();
 			
-			CheckersBoard Board = new CheckersBoard(Repr);
+			CheckersBoard Board = new CheckersBoard(Repr, 2);
 			Board.Start();
 			
-			//Moves =	Repr.SuccessorsFunc(2);//.EatCheck(2 ,0);
-			System.out.println(Moves.size());
+			//Moves =	Repr.MoveFunction(5, 3);
+			
+			//System.out.println(Moves.size());
 			//System.in.read();
 			
 			for (int i=0; i < Moves.size(); i++) 
@@ -44,7 +45,7 @@ public class Hello_world {
 				System.out.println(i);
 				System.out.println(i);
 				
-				Board = new CheckersBoard(Moves.get(i));
+				Board = new CheckersBoard(Moves.get(i),1);
 				Board.Start();
 				
 				Moves.get(i).PositionPrint();

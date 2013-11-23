@@ -16,7 +16,7 @@ public class StateRepresent {
 	StateRepresent ansestor;
 	
 	public StateRepresent(){
-		this.depth = 1;
+		this.depth = 2;
 	}
 	
 	
@@ -38,7 +38,7 @@ public class StateRepresent {
 	    }
 	}
 	
-	//white = 1, black = 2 
+	//white = 1, black = 2, white king = 3, black king =  4
 	public ArrayList<StateRepresent> SuccessorsFunc(int colour_of_turn)
 	{
 		//list of potential moves
@@ -51,22 +51,7 @@ public class StateRepresent {
 		for (int i =0;i<8;i++ )
 		   {
 		    for (int j = 0; j<8;j++) {
-		    	   //white turn
-				   if (this.states[i][j] == colour_of_turn)
-				   {
-					   //check for possible takes
-					   TakeList_ = EatCheck(i,j);
-					   if (!TakeList_.isEmpty())
-					   		TakeList.addAll(TakeList_);
-					   
-					   //if there is no possible takes, then check moves
-					   if (TakeList.isEmpty())
-						   MoveList_ = MoveFunction(i,j);
-					   	   if (!MoveList_.isEmpty())
-					   	   	  MoveList.addAll(MoveList_);
-				   }
-				   //black turn
-				   else if (this.states[i][j] == colour_of_turn)
+				   if ((this.states[i][j] == colour_of_turn)||(this.states[i][j] == (colour_of_turn + 2)))
 				   {
 					   //check for possible takes
 					   TakeList_ = EatCheck(i,j);
@@ -99,7 +84,8 @@ public class StateRepresent {
 		ArrayList<StateRepresent> MoveList = new ArrayList<StateRepresent>();
 		StateRepresent newStateRepresent;
 		
-		if (this.states[i][j] == 2) 
+		//moves for black piece or for kings
+		if ((this.states[i][j] == 2)||(this.states[i][j] == 3)||(this.states[i][j] == 4))
 			{		
 			newStateRepresent = this.MoveCheck(i, j, (i+1), (j+1));
 			  if (newStateRepresent != null)
@@ -109,10 +95,10 @@ public class StateRepresent {
 		      if (newStateRepresent != null)
 			      MoveList.add(newStateRepresent);
 			}
-			
-		 else if ((this.states[i][j] == 1))
+		
+		 //moves for white piece or for kings
+		 if ((this.states[i][j] == 1)||(this.states[i][j] == 3)||(this.states[i][j] == 4))
 		 	{
-			 
 			  newStateRepresent = this.MoveCheck(i, j, (i-1), (j+1));
 			  if (newStateRepresent != null)
 				  MoveList.add(newStateRepresent);
@@ -125,7 +111,7 @@ public class StateRepresent {
 		return MoveList;
 	}
 	
-	//method returns move if the move is possible
+	//method returns move if the move is possible, because field is free
 	private StateRepresent MoveCheck(int i_, int j_, int i_new, int j_new)
 	{	 
 		if ((this.BorderCheck(i_new, j_new))&&(states[i_new][j_new] == 0))
@@ -133,7 +119,16 @@ public class StateRepresent {
 			
 			StateRepresent newStateRepresent  = new StateRepresent(this.states, this.depth, this);
 			
-		    newStateRepresent.states[i_new][j_new] = this.states[i_][j_];
+			//white king
+			if ((i_new == 0)&&(this.states[i_][j_] == 1))
+				newStateRepresent.states[i_new][j_new] = 3;
+			//black king
+			else if ((i_new == 7)&&(this.states[i_][j_] == 2))
+				newStateRepresent.states[i_new][j_new] = 4;
+			//regular move
+			else
+				newStateRepresent.states[i_new][j_new] = this.states[i_][j_];
+			
 		    newStateRepresent.states[i_][j_] = 0;
 		    
 		    return newStateRepresent;
@@ -160,38 +155,56 @@ public class StateRepresent {
 		StateRepresent newStateRepresent;
 		
 		
-		byte opposite_colour;
+		byte opposite_piece, opposite_king;
 		int i_eat, j_eat, i_new, j_new;
 		
-		if (this.states[i_][j_] == 1) 
-			opposite_colour = 2;
+		if ((this.states[i_][j_] == 1)||(this.states[i_][j_] == 3)) 
+			{
+				opposite_piece = 2;
+				opposite_king = 4;
+			}
 		else
-		    opposite_colour = 1;
+			{
+				opposite_piece = 1;
+				opposite_king = 3;
+			}
 		
 		for (int k = 0; k < 4; k++)
 		{	
-				i_eat = i_ + options_of_move[0][k];
-				i_new = i_ + options_of_move[1][k];
-				j_eat = j_ + options_of_move[2][k];
-				j_new = j_ + options_of_move[3][k];
+			if (((this.states[i_][j_] == 1)&&(k>1))||((this.states[i_][j_] == 2)&&(k<=1))||(this.states[i_][j_] == 3)||(this.states[i_][j_] == 4))
+		    {
+					i_eat = i_ + options_of_move[0][k];
+					i_new = i_ + options_of_move[1][k];
+					j_eat = j_ + options_of_move[2][k];
+					j_new = j_ + options_of_move[3][k];
 		
-		    //eat if possible
-			if ((this.BorderCheck(i_new, j_new))&&(states[i_eat][j_eat] == opposite_colour)&&(states[i_new][j_new]==0))
-			{
-				newStateRepresent  = new StateRepresent(this.states, this.depth, this);
-				
-				newStateRepresent.states[i_][j_] = 0;
-				newStateRepresent.states[i_eat][j_eat] = 0;
-				newStateRepresent.states[i_new][j_new] = this.states[i_][j_];
+					//eat if possible
+					if ((this.BorderCheck(i_new, j_new))&&((states[i_eat][j_eat] == opposite_piece)||(states[i_eat][j_eat] == opposite_king))&&(states[i_new][j_new]==0))
+					{
+						newStateRepresent  = new StateRepresent(this.states, this.depth, this);
+						
+						//white king
+						if ((i_new == 0)&&(this.states[i_][j_] == 1))
+							newStateRepresent.states[i_new][j_new] = 3;
+						//black king
+						else if ((i_new == 7)&&(this.states[i_][j_] == 2))
+							newStateRepresent.states[i_new][j_new] = 4;
+						else
+							newStateRepresent.states[i_new][j_new] = newStateRepresent.states[i_][j_];
+						
+						
+						newStateRepresent.states[i_][j_] = 0;
+						newStateRepresent.states[i_eat][j_eat] = 0;
+						
 				    
-				    
-				MoveList_ = newStateRepresent.EatCheck(i_new, j_new);
+						MoveList_ = newStateRepresent.EatCheck(i_new, j_new);
 				
-				if (MoveList_.isEmpty())
-				    MoveList.add(newStateRepresent);
-				else 
-				    MoveList.addAll(MoveList_);
-			 }
+						if (MoveList_.isEmpty())
+							MoveList.add(newStateRepresent);
+						else 
+							MoveList.addAll(MoveList_);
+					}
+			}
 		}
 		return MoveList;
 	}
