@@ -16,14 +16,14 @@ public class Hello_world {
 			
 			
 			byte[][] states = {
-					{0, 7, 0, 7, 2, 7, 0, 7},
+					{2, 7, 2, 7, 2, 7, 2, 7},
+					{7, 2, 7, 2, 7, 2, 7, 2},
+					{2, 7, 2, 7, 2, 7, 2, 7},
 					{7, 0, 7, 0, 7, 0, 7, 0},
-					{0, 7, 0, 7, 0, 7, 0, 7},
-					{7, 0, 7, 0, 7, 1, 7, 0},
 				    {0, 7, 0, 7, 0, 7, 0, 7},
-				    {7, 0, 7, 0, 7, 1, 7, 0},
-					{0, 7, 0, 7, 0, 7, 0, 7},
-					{7, 0, 7, 0, 7, 0, 7, 0}};
+				    {7, 1, 7, 1, 7, 1, 7, 1},
+					{1, 7, 1, 7, 1, 7, 1, 7},
+					{7, 1, 7, 1, 7, 1, 7, 1}};
 			
 			
 			Repr.states = states;
@@ -34,6 +34,8 @@ public class Hello_world {
 			
 			CheckersBoard Board = new CheckersBoard(Repr, 1);
 			Board.Start();
+			
+			Board.simulation(1);
 			
 			//Moves =	Repr.MoveFunction(5, 3);
 			
@@ -50,6 +52,7 @@ public class Hello_world {
 				
 				Board = new CheckersBoard(Moves.get(i),1);
 				Board.Start();
+				
 				
 				Moves.get(i).PositionPrint();
 				

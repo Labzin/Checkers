@@ -210,6 +210,30 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 		}
 	}
 	
+	
+	public void simulation(int colour_of_turn)
+	{
+		while (!((this.currentState.checkLose(1))||(this.currentState.checkLose(2))))
+		{
+			//try 
+			//{
+				this.currentState =  sudoAI.startMinMax(this.currentState, 1, 10);
+				//Thread.sleep(1);
+				this.Draw();
+				
+				this.currentState =  sudoAI.randomStep(this.currentState, 2);
+				//Thread.sleep(1);
+				this.Draw();	
+				
+			//} catch (InterruptedException e) {
+			//	// TODO Auto-generated catch block
+			//	e.printStackTrace();
+			//}
+			
+		}
+		
+	}
+	
 	public void  DrawState(StateRepresent state)
 	{
 		this.currentState = state;
@@ -301,6 +325,7 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 		}
 	}
 	
+	//!!!make a move!!!
 	public void makeMove(int iDestination, int jDestination)
 	{
 
@@ -328,13 +353,13 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 							{
 								//check for end of the game
 								if (this.currentState.checkLose(2))
-										{
-											System.out.println("The white player is win!");
-											break;
-										}
+									{
+									    System.out.println("The white player is win!");
+									    break;
+									}
 										
 								// get move from AI and change the board state
-								this.currentState = sudoAI.startMinMax(this.currentState, 2, 2);
+								this.currentState = sudoAI.startMinMax(this.currentState, 2, 15);
 								
 								//check for end of the game
 								if (this.currentState.checkLose(1))
@@ -358,10 +383,10 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 								
 								//check for end of the game
 								if (this.currentState.checkLose(2))
-										{
-											System.out.println("The white player is win!");
-											break;
-										}
+									{
+										System.out.println("The white player is win!");
+										break;
+									}
 							}
 							
 							successors =  currentState.SuccessorsFunc(current_colour_of_turn);
