@@ -16,20 +16,23 @@ public class Hello_world {
 			
 			
 			byte[][] states = {
-					{0, 7, 0, 7, 2, 7, 2, 7},
-					{7, 0, 7, 2, 7, 2, 7, 2},
-					{0, 7, 0, 7, 1, 7, 0, 7},
-					{7, 1, 7, 1, 7, 1, 7, 0},
+					{0, 7, 0, 7, 2, 7, 0, 7},
+					{7, 0, 7, 0, 7, 0, 7, 0},
+					{0, 7, 0, 7, 0, 7, 0, 7},
+					{7, 0, 7, 0, 7, 1, 7, 0},
 				    {0, 7, 0, 7, 0, 7, 0, 7},
-				    {7, 0, 7, 2, 7, 1, 7, 3},
-					{0, 7, 0, 7, 1, 7, 0, 7},
-					{7, 4, 7, 0, 7, 0, 7, 1}};
+				    {7, 0, 7, 0, 7, 1, 7, 0},
+					{0, 7, 0, 7, 0, 7, 0, 7},
+					{7, 0, 7, 0, 7, 0, 7, 0}};
 			
 			
 			Repr.states = states;
 			ArrayList<StateRepresent> Moves = new ArrayList<StateRepresent>();
 			
-			CheckersBoard Board = new CheckersBoard(Repr, 2);
+			System.out.println("H:"+Repr.heuristicDifference());
+
+			
+			CheckersBoard Board = new CheckersBoard(Repr, 1);
 			Board.Start();
 			
 			//Moves =	Repr.MoveFunction(5, 3);

@@ -76,8 +76,11 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 	
 	//1 = white, 2 = black
 	int current_colour_of_turn = 1;
-	//
+	
 	ArrayList<StateRepresent> successors;
+	
+	//class for AI
+	MinMaxAI sudoAI;
 	
     public CheckersBoard(StateRepresent state, int colour_of_turn) {
         try {
@@ -111,6 +114,9 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
         //turn and successors
         current_colour_of_turn = colour_of_turn;
         successors = currentState.SuccessorsFunc(current_colour_of_turn);
+        
+        //create AI
+        sudoAI = new MinMaxAI();
     }
 	
 	public void Start() {
@@ -317,9 +323,46 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 							System.out.println();
 							System.out.println();
 										
-			   			    //change the turn
-							if (current_colour_of_turn ==1) current_colour_of_turn = 2;
-							    else current_colour_of_turn = 1;
+			   			    //move of the opponent
+							if (current_colour_of_turn ==1) 
+							{
+								//check for end of the game
+								if (this.currentState.checkLose(2))
+										{
+											System.out.println("The white player is win!");
+											break;
+										}
+										
+								// get move from AI and change the board state
+								this.currentState = sudoAI.startMinMax(this.currentState, 2, 2);
+								
+								//check for end of the game
+								if (this.currentState.checkLose(1))
+									{
+										System.out.println("The black player is win!");
+										break;
+									}
+								
+							}
+							else
+							{ 
+								//check for end of the game
+								if (this.currentState.checkLose(1))
+									{
+										System.out.println("The black player is win!");
+										break;
+									}
+								
+								// get move from AI and change the board state
+								this.currentState = sudoAI.randomStep(this.currentState, 1);
+								
+								//check for end of the game
+								if (this.currentState.checkLose(2))
+										{
+											System.out.println("The white player is win!");
+											break;
+										}
+							}
 							
 							successors =  currentState.SuccessorsFunc(current_colour_of_turn);
 							

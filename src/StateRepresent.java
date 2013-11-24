@@ -29,6 +29,48 @@ public class StateRepresent {
 		this.depth = depth_ + 1;
 	}
 	
+	//heuristic, white pieces on the board minus black pieces on the board
+	public int heuristicDifference()
+	{
+		int numberOfBlakPiesces = 0;
+		int numberOfWhitePiesces = 0;
+		
+		//count number of pieces on the board
+		for (int i =0;i<8;i++ )
+			   for (int j = 0; j<8;j++) 
+			   {
+				   //number of pieces, black pieces			   
+				   if ((this.states[i][j] == 2)||(this.states[i][j] == 4))
+						numberOfBlakPiesces++;
+				   
+				   //number of white pieces
+				   if ((this.states[i][j] == 1)||(this.states[i][j] == 3))
+						numberOfWhitePiesces++;
+			   }
+		
+		//for case of win of white
+		if (numberOfBlakPiesces == 0)
+			return 13;
+		
+		//for case of win of black
+		if (numberOfWhitePiesces == 0)
+			return (-13);
+		
+		return  (numberOfWhitePiesces - numberOfBlakPiesces);
+	}
+	
+	//return true if there is not pieces of give colour
+	public boolean checkLose(int colour)
+	{
+		for (int i =0;i<8;i++ )
+			   for (int j = 0; j<8;j++) 
+				   if (((colour == 1)&&((this.states[i][j] == 1)||(this.states[i][j] == 3)))||
+				   	  ((colour == 2)&&((this.states[i][j] == 2)||(this.states[i][j] == 4))))
+					   return false;		
+		return true;
+	}
+	
+	//print state in console
 	public void PositionPrint()
 	{ for (int i =0;i<8;i++ )
 		{
@@ -38,7 +80,7 @@ public class StateRepresent {
 	    }
 	}
 	
-	//white = 1, black = 2, white king = 3, black king =  4
+	//white = 1, black = 2(only!!!)
 	public ArrayList<StateRepresent> SuccessorsFunc(int colour_of_turn)
 	{
 		//list of potential moves
@@ -137,7 +179,7 @@ public class StateRepresent {
 			return null;}
 	}
 	
-	//
+	//function for calculation of takes
 	public ArrayList<StateRepresent> EatCheck(int i_, int j_)
 	{
 		ArrayList<StateRepresent> MoveList = new ArrayList<StateRepresent>();
