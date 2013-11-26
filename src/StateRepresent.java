@@ -261,8 +261,9 @@ public class StateRepresent {
                                 //add transitional steps for step-by-step display
                                 for (int i=0; i < MoveList_.size(); i++)
                                 {
-                                        MoveList_.get(i).addTransStep(newStateRepresent);
+                                     MoveList_.get(i).addTransStep(newStateRepresent);
                                 }
+                                
                                 MoveList.addAll(MoveList_);
                         }
 					}

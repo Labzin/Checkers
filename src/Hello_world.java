@@ -15,7 +15,7 @@ public class Hello_world {
 			StateRepresent Repr = new StateRepresent();
 			
 			
-			byte[][] states = {
+			byte[][] states  = {
 					{2, 7, 2, 7, 2, 7, 2, 7},
 					{7, 2, 7, 2, 7, 2, 7, 2},
 					{2, 7, 2, 7, 2, 7, 2, 7},
@@ -24,25 +24,31 @@ public class Hello_world {
 				    {7, 1, 7, 1, 7, 1, 7, 1},
 					{1, 7, 1, 7, 1, 7, 1, 7},
 					{7, 1, 7, 1, 7, 1, 7, 1}};
+
 			
-			
-			Repr.states = states;
 			ArrayList<StateRepresent> Moves = new ArrayList<StateRepresent>();
 			
 			System.out.println("H:"+Repr.heuristicDifference());
 
+			Repr.states = states;
 			
 			CheckersBoard Board = new CheckersBoard(Repr, 1);
 			Board.Start();
+					
 			
-			Board.simulation(1);
+			//Board.DrawMove(Repr);
+			
+			//MinMaxAI AI = new MinMaxAI();
+			//AI.simulation();
+			
+			//Board.simulation(1);
 			
 			//Moves =	Repr.MoveFunction(5, 3);
 			
 			//System.out.println(Moves.size());
 			//System.in.read();
 			
-			for (int i=0; i < Moves.size(); i++) 
+			/*for (int i=0; i < Moves.size(); i++) 
 			{ 
 								
 				System.out.println(i);
@@ -65,6 +71,7 @@ public class Hello_world {
 		//}
         
 
-	}
+	}*/
 
+	}
 }

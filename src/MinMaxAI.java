@@ -1,7 +1,35 @@
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
+
+import javax.swing.Timer;
 
 
 public  class MinMaxAI {
+	
+	StateRepresent Repr = new StateRepresent();
+	
+	
+	byte[][] states = {
+			{0, 7, 0, 7, 0, 7, 0, 7},
+			{7, 0, 7, 0, 7, 0, 7, 0},
+			{0, 7, 0, 7, 0, 7, 2, 7},
+			{7, 0, 7, 0, 7, 0, 7, 0},
+		    {0, 7, 0, 7, 2, 7, 0, 7},
+		    {7, 0, 7, 1, 7, 0, 7, 0},
+			{0, 7, 0, 7, 0, 7, 0, 7},
+			{7, 0, 7, 0, 7, 0, 7, 0}};
+	
+	
+	BoardThread board;
+	
+	
+	public MinMaxAI(){
+		Repr.states = states;
+		//linkAI.set(this);
+		//board = new BoardThread(Repr, 1, linkAI);
+	}
+	
+	
 	
 	public StateRepresent startMinMax(StateRepresent startState, int colour_of_turn, int depthOfSearch)
 	{
@@ -11,16 +39,18 @@ public  class MinMaxAI {
 		
 		int maxForWhite  = -Integer.MAX_VALUE;
 		int maxForWhite_current  =  -Integer.MAX_VALUE;
+		int a = -Integer.MAX_VALUE;
 		
 		int minForBlack  =  Integer.MAX_VALUE;
 		int minForBlack_current  =  Integer.MAX_VALUE;
+		int b = Integer.MAX_VALUE;
 		
 		for (int i=0; i < successors.size(); i++) 
 		{   
 			if (colour_of_turn == 1)
 			{
 				
-				maxForWhite_current = this.recursivMinMax((StateRepresent)successors.get(i), 2, (depthOfSearch - 1));
+				maxForWhite_current = this.recursivMinMax((StateRepresent)successors.get(i), 2, (depthOfSearch - 1), a, b);
 				
 				System.out.println("Heuristic white"+ maxForWhite_current);
 				
@@ -41,9 +71,9 @@ public  class MinMaxAI {
 			}
 			else 
 			{			
-				minForBlack_current = this.recursivMinMax((StateRepresent)successors.get(i), 1, (depthOfSearch - 1));
+				minForBlack_current = this.recursivMinMax((StateRepresent)successors.get(i), 1, (depthOfSearch - 1), a, b);
 				
-				System.out.println("Heuristic white"+ minForBlack_current);
+				System.out.println("Heuristic black"+ minForBlack_current);
 				
 				if (minForBlack_current < minForBlack)
 				{
@@ -67,15 +97,15 @@ public  class MinMaxAI {
 
 	}
 	
-	private int recursivMinMax(StateRepresent startState, int colour_of_turn, int depthOfSearch)
+	private int recursivMinMax(StateRepresent startState, int colour_of_turn, int depthOfSearch, int a, int b)
 	{
 		ArrayList<StateRepresent> successors = startState.SuccessorsFunc(colour_of_turn);
 		
-		int maxForWhite  = -Integer.MAX_VALUE;
+		//int maxForWhite  = -Integer.MAX_VALUE;
 		int maxForWhite_current = -Integer.MAX_VALUE;
 
 		
-		int minForBlack  =  Integer.MAX_VALUE;
+		//int minForBlack  =  Integer.MAX_VALUE;
 		int minForBlack_current =  Integer.MAX_VALUE;
 		
   
@@ -85,20 +115,27 @@ public  class MinMaxAI {
 				//if there are no successors or limit of depth, return current state heuristic
 				if ((successors.isEmpty())||((depthOfSearch - 1) <= 0))
 				{
-					maxForWhite = startState.heuristicDifference();
+					a = startState.heuristicDifference();
 				}
 				else
 				{   //search over successors
 					for (int i=0; i < successors.size(); i++) 
 					{   
 						//next step of recursion
-						maxForWhite_current = this.recursivMinMax((StateRepresent)successors.get(i), 2, (depthOfSearch - 1));	
+						maxForWhite_current = this.recursivMinMax((StateRepresent)successors.get(i), 2, (depthOfSearch - 1), a, b);	
 				
 						
-						if (maxForWhite_current > maxForWhite)
-							maxForWhite = maxForWhite_current;
-					}
+						//if (maxForWhite_current > maxForWhite)
+						//	maxForWhite = maxForWhite_current;
+						
+						if (maxForWhite_current > a)
+							a = maxForWhite_current;
+						
+						if (a >= b)
+							return b;
+					}	
 				}
+				return a;
 			}
 			//for black colour
 			else
@@ -106,27 +143,27 @@ public  class MinMaxAI {
 				//if there are no successors, return current state heuristic
 				if ((successors.isEmpty())||((depthOfSearch - 1) <= 0))
 				{
-					minForBlack = startState.heuristicDifference();
+					b = startState.heuristicDifference();
 				}
 				else
 				{	//search over successors
 					for (int i=0; i < successors.size(); i++) 
 					{  
 						//next step of recursion
-						minForBlack_current = this.recursivMinMax((StateRepresent)successors.get(i), 1, (depthOfSearch - 1));
+						minForBlack_current = this.recursivMinMax((StateRepresent)successors.get(i), 1, (depthOfSearch - 1), a, b);
 				
-						if (minForBlack_current < minForBlack)		
-							minForBlack = minForBlack_current;
+						//if (minForBlack_current < minForBlack)		
+						//	minForBlack = minForBlack_current;
 						
+						if (minForBlack_current < b)
+							b = minForBlack_current;
+							
+						if (a >= b)
+							return a;
 					}
-				}
-					
-		}
-		
-		if 	(colour_of_turn == 1)
-			return maxForWhite;
-		else
-			return minForBlack;
+				 }
+				return b;
+			}
 	}
 
 	//return random move
@@ -138,5 +175,17 @@ public  class MinMaxAI {
 			return null;
 		else 
 			return (successors.get((int)(successors.size()*Math.random())));
+	}
+
+	
+	
+	public void SimpleTimeDelay(long timeDelay)
+	{
+		long currentTime = System.currentTimeMillis();
+		
+		while ((System.currentTimeMillis() - currentTime) < timeDelay)
+		{
+			
+		}
 	}
 }

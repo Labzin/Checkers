@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import java.util.TooManyListenersException;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class CheckersBoard extends JFrame implements DragGestureListener, Transferable  {
+public class BoardThread extends JFrame implements DragGestureListener, Transferable, Runnable  {
 
 	private JPanel mainPanel = new JPanel();
 	private JPanel downPanel = new JPanel();
@@ -65,7 +65,7 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 	Cursor cursorW;
 	Cursor cursorB;
 	
-	AtomicReference<CheckersBoard> linkBoard = new AtomicReference<CheckersBoard>();
+	AtomicReference<BoardThread> linkBoard = new AtomicReference<BoardThread>();
 	
 	//actual state of the board
 	StateRepresent currentState;
@@ -87,10 +87,11 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 	
 	ActionListener animate;
 	
-	StateRepresent newStateRepr;
-	javax.swing.Timer t;
+	public AtomicReference<MinMaxAI> linkAI;
 	
-    public CheckersBoard(StateRepresent state, int colour_of_turn) {
+    public BoardThread(StateRepresent state, int colour_of_turn,  AtomicReference<MinMaxAI> AI) {
+    	
+    	this.linkAI = AI;
     	
     	animate = new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
@@ -106,6 +107,7 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 		}
         this.currentState = state;
         
+        //create link on class 
         linkBoard.set(this);
         
         //cursor for drag and drop
@@ -127,9 +129,6 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
         //turn and successors
         current_colour_of_turn = colour_of_turn;
         successors = currentState.SuccessorsFunc(current_colour_of_turn);
-        
-        //create AI
-        sudoAI = new MinMaxAI();
         
     }
 	
@@ -153,27 +152,37 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 	//draw move regular or step-by-step
 	public void DrawMove(StateRepresent state)
 	{
-		
 		//draw step-by-step
 		for (int i=0; i < state.transSteps.size(); i++) 
 		{ 
-			this.currentState = new StateRepresent(state.transSteps.get(i).states, state.depth + 1, state);
-			
+			this.currentState = state.transSteps.get(i);
 			this.Draw();
-			   
-			this.currentState.PositionPrint();
+			System.out.println("Draw!");
+			
+			this.mainPanel.paintImmediately(getBounds());
+			this.mainPanel.repaint();
+			
+			this.repaint();
+			
+			try {
+				Thread.sleep(2000);
+				System.out.println("Sleep!");
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			 Timer time = new Timer(2, animate);
+			 time.setRepeats(false);
+             time.start();
+             
 			
 			System.out.println();
 			System.out.println("step");
 			state.transSteps.get(i).PositionPrint();
 			
-			
-			sudoAI.SimpleTimeDelay(300);
+			//this.SimpleTimeDelay(800);
 		}
 		
-		//sudoAI.SimpleTimeDelay(300);
-		
-		System.out.println("step1");
 		this.currentState = state;
 		successors =  currentState.SuccessorsFunc(current_colour_of_turn);
 		
@@ -263,6 +272,7 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
             	}
             }
 		}
+		this.validate();
 		this.repaint();
 	}
 	
@@ -273,14 +283,13 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 		{
 			//try 
 			//{
-				this.currentState =  sudoAI.startMinMax(this.currentState, 1, 15);
+				this.currentState =  sudoAI.startMinMax(this.currentState, 1, 10);
+				//Thread.sleep(1);
 				this.Draw();
-				sudoAI.SimpleTimeDelay(1000);
 				
-				this.currentState =  sudoAI.randomStep(this.currentState, 2);			
+				this.currentState =  sudoAI.randomStep(this.currentState, 2);
+				//Thread.sleep(1);
 				this.Draw();	
-				
-				sudoAI.SimpleTimeDelay(1000);
 				
 			//} catch (InterruptedException e) {
 			//	// TODO Auto-generated catch block
@@ -401,19 +410,14 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 							//change the board state
 							//this.currentState = new StateRepresent(successors.get(k).states, this.currentState.depth + 1, this.currentState);
 							
-							
-						    this.DrawMove(successors.get(k));
+							//linkAI.get().DrawMove(successors.get(k));
+							//this.DrawMove(successors.get(k));
 							
 							this.currentState.PositionPrint();
-							//this.Draw();
 							
 							System.out.println();
 							System.out.println();
-							/*if (current_colour_of_turn ==1)	
-								current_colour_of_turn = 2;
-							else
-								current_colour_of_turn = 1;*/
-							
+										
 			   			    //move of the opponent
 							if (current_colour_of_turn ==1) 
 							{
@@ -459,7 +463,7 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 							
 							break;
 						}
-				}
+		}
 		
 		this.Draw();
 	}
@@ -469,11 +473,11 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 
 	        private DropTarget dropTarget;
 	        private JPanel panel;
-	        public AtomicReference<CheckersBoard> board;
+	        public AtomicReference<BoardThread> board;
 	        int i,j;
 	        
 	    //AtomicReference to a create link on the main board object
-	    public MyDropTargetListener(JPanel panel, AtomicReference<CheckersBoard>  board) {
+	    public MyDropTargetListener(JPanel panel, AtomicReference<BoardThread>  board) {
 	        this.panel = panel;
 	        this.board = board; 
 	        
@@ -519,6 +523,11 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 	public boolean isDataFlavorSupported(DataFlavor flavor) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public void run() {
+		this.Start();
 	}
 	
 }
