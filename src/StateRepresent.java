@@ -15,10 +15,21 @@ public class StateRepresent {
 	int depth;
 	StateRepresent ansestor;
 	
+	
+	//transitional steps for step-by-step display of multi-steps
+    ArrayList<StateRepresent> transSteps = new ArrayList<StateRepresent>();
+    
 	public StateRepresent(){
 		this.depth = 2;
 	}
 	
+	
+	//add transitional step for multi-steps
+    public void addTransStep(StateRepresent transStep)
+    {
+            transSteps.add(transStep);
+    }
+    
 	
 	public StateRepresent(byte[][] state_, int depth_, StateRepresent ansestor)
 	{
@@ -239,12 +250,21 @@ public class StateRepresent {
 						newStateRepresent.states[i_eat][j_eat] = 0;
 						
 				    
-						MoveList_ = newStateRepresent.EatCheck(i_new, j_new);
-				
-						if (MoveList_.isEmpty())
-							MoveList.add(newStateRepresent);
-						else 
-							MoveList.addAll(MoveList_);
+						//recursive check of farther takes
+                        MoveList_ = newStateRepresent.EatCheck(i_new, j_new);
+        
+                        if (MoveList_.isEmpty())
+                                //stop of recursion
+                                MoveList.add(newStateRepresent);
+                        else
+                        {
+                                //add transitional steps for step-by-step display
+                                for (int i=0; i < MoveList_.size(); i++)
+                                {
+                                        MoveList_.get(i).addTransStep(newStateRepresent);
+                                }
+                                MoveList.addAll(MoveList_);
+                        }
 					}
 			}
 		}
