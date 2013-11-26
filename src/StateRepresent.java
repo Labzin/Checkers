@@ -51,12 +51,18 @@ public class StateRepresent {
 			   for (int j = 0; j<8;j++) 
 			   {
 				   //number of pieces, black pieces			   
-				   if ((this.states[i][j] == 2)||(this.states[i][j] == 4))
+				   if (this.states[i][j] == 2)
 						numberOfBlakPiesces++;
 				   
+				   if (this.states[i][j] == 4)
+					   numberOfBlakPiesces = numberOfBlakPiesces + 2;
+				   
 				   //number of white pieces
-				   if ((this.states[i][j] == 1)||(this.states[i][j] == 3))
+				   if (this.states[i][j] == 1)
 						numberOfWhitePiesces++;
+				   
+				   if (this.states[i][j] == 3)
+					   numberOfWhitePiesces = numberOfWhitePiesces + 2;
 			   }
 		
 		//for case of win of white
