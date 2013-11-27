@@ -1,10 +1,14 @@
 import javax.imageio.ImageIO;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.Popup;
+import javax.swing.PopupFactory;
 import javax.swing.Timer;
 
 import java.awt.datatransfer.DataFlavor;
@@ -28,10 +32,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.TransferHandler;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -43,12 +51,14 @@ import java.util.ArrayList;
 import java.util.TooManyListenersException;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class CheckersBoard extends JFrame implements DragGestureListener, Transferable  {
+public class CheckersBoard extends JFrame implements DragGestureListener, Transferable, ChangeListener   {
 
 	private JPanel mainPanel = new JPanel();
 	private JPanel downPanel = new JPanel();
     private JPanel leftPanel = new JPanel();
-	
+    private JPanel sliderPanel = new JPanel();
+    private JButton buttonStart = new JButton("Start");
+    
 	private PanelIm[][] spots= new PanelIm[8][8];
 	private JLabel[][]  spotsLabels = new JLabel[8][8];
 	private Image wField;
@@ -65,12 +75,13 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 	Cursor cursorW;
 	Cursor cursorB;
 	
+	//reference for drag and drop, important!!
 	AtomicReference<CheckersBoard> linkBoard = new AtomicReference<CheckersBoard>();
 	
 	//actual state of the board
 	StateRepresent currentState;
 	
-	//coordinates of the drug piece
+	//coordinates of the piece for drug
 	int iStart, jStart;
 	
 	//drag and drop
@@ -85,17 +96,23 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 	//class for AI
 	MinMaxAI sudoAI;
 	
-	ActionListener animate;
+	//depth of search
+	JSlider depthOfSearchSlider = new JSlider(3,15,3);
+	int  depthOfSearch = 3;
 	
-	StateRepresent newStateRepr;
-	javax.swing.Timer t;
+	private Component currentComponent = this;
 	
     public CheckersBoard(StateRepresent state, int colour_of_turn) {
     	
-    	animate = new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                repaint();}};
-        
+    	//slider for depth of search
+    	depthOfSearchSlider.addChangeListener(this);
+    	depthOfSearchSlider.setMajorTickSpacing(1);
+    	depthOfSearchSlider.setPaintTicks(true);
+    	depthOfSearchSlider.setPaintLabels(true);
+    	depthOfSearchSlider.setPreferredSize(new Dimension(400,50));
+    	
+    	
+    	
         try {
         	//images for fields 
         	this.wField = ImageIO.read(new File("n:/WField.jpg"));
@@ -145,8 +162,11 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
-
+    
+        
         this.Draw();
+        
+        
         
 		}
 	
@@ -167,7 +187,6 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 			System.out.println("step");
 			state.transSteps.get(i).PositionPrint();
 			
-			
 			sudoAI.SimpleTimeDelay(300);
 		}
 		
@@ -181,16 +200,7 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 		
 	}  
 	
-	private void SimpleTimeDelay(long timeDelay)
-	{
-		long currentTime = System.currentTimeMillis();
-		
-		while ((System.currentTimeMillis() - currentTime) < timeDelay)
-		{
-			
-		}
-	}
-	
+	//runs only with the constructor 
 	private void CreatePanels(Container Panel)
 		{
 			GridLayout gridLayout = new GridLayout(8, 8);
@@ -210,16 +220,18 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 	            	 
 	            	 spotsLabels[row][col] = new JLabel();
 	            	 
-	            	 	            	           	 
+	            	 //set names 	            	           	 
 	            	 spotsLabels[row][col].setName(String.valueOf(row) +" "+ String.valueOf(col));
 	            	 spots[row][col].setName(String.valueOf(row) +" "+ String.valueOf(col));
 	            	 
+	            	 //add label to a panel
 	            	 spots[row][col].add(spotsLabels[row][col]);
         	 
 	            	//drag and drop
 	            	 dragSource.createDefaultDragGestureRecognizer(spotsLabels[row][col], DnDConstants.ACTION_MOVE, this);
 	            	 new MyDropTargetListener(spots[row][col], linkBoard);
 	            	 
+	            	 //add panel on main board
 	            	 mainPanel.add(spots[row][col]);	
 	            }	                	
 	         }
@@ -233,13 +245,51 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 	            leftPanel.add(new JLabel(String.valueOf(i) + ""));
 	            downPanel.add(new JLabel("               " +String.valueOf(i) + ""));     
 	        }
-	                
+	        
+	        //set button listener
+	        buttonStart.addActionListener(new ActionListener() {
+	            @Override
+	            public void actionPerformed(ActionEvent event) {
+	            	//set start state
+	                currentState = new StateRepresent();
+	                successors =  currentState.SuccessorsFunc(current_colour_of_turn);
+	                Draw();	            	        	       	          	
+	           }
+	        });
+	        
+	        sliderPanel.setLayout(new GridLayout(0, 2));
+	        //add slider
+	        sliderPanel.add(depthOfSearchSlider);
+	        //add button
+	        sliderPanel.add(buttonStart);
 	        
 	        Panel.add(leftPanel, BorderLayout.WEST);
 			Panel.add(mainPanel, BorderLayout.CENTER);
-			Panel.add(downPanel, BorderLayout.SOUTH);
+			//Panel.add(downPanel, BorderLayout.SOUTH);
+			Panel.add(sliderPanel, BorderLayout.SOUTH);
 		}
 	
+	private void showPopUpWindow(String text, int timeToShow)
+	{
+		JButton label = new JButton(text);
+		label.setPreferredSize((new Dimension(200,50)));
+		
+        PopupFactory factory = PopupFactory.getSharedInstance();
+        final Popup popup = factory.getPopup(this, label, 850, 600);
+        popup.show();
+        
+        ActionListener hider = new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            popup.hide();
+          }
+        };
+        // Hide popup in 3 seconds
+        Timer timer = new Timer(timeToShow, hider);
+        timer.start();
+		
+	}
+	
+	//draw current state representation
 	public void Draw()
 	{
 		System.out.println("!!!!!!!!!!!!");
@@ -273,12 +323,24 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 		{
 			//try 
 			//{
-				this.currentState =  sudoAI.startMinMax(this.currentState, 1, 15);
+				this.currentState =  sudoAI.startMinMax(this.currentState, 1, 10);
 				this.Draw();
+					
+				if (this.currentState.checkLose(2))
+						{
+							showPopUpWindow("The white player is won!",2000);
+							break;
+						}
 				sudoAI.SimpleTimeDelay(1000);
 				
-				this.currentState =  sudoAI.randomStep(this.currentState, 2);			
+				this.currentState =  sudoAI.startMinMax(this.currentState, 2, 3);
+				//sudoAI.randomStep(this.currentState, 2);
 				this.Draw();	
+				
+				if (this.currentState.checkLose(1))
+				{
+					showPopUpWindow("The black player is won!",2000);
+				}
 				
 				sudoAI.SimpleTimeDelay(1000);
 				
@@ -420,17 +482,17 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 								//check for end of the game
 								if (this.currentState.checkLose(2))
 									{
-									    System.out.println("The white player is win!");
+									    showPopUpWindow("The white player is won!",2000); 
 									    break;
 									}
 										
 								// get move from AI and change the board state
-								this.currentState = sudoAI.startMinMax(this.currentState, 2, 5);
+								this.currentState = sudoAI.startMinMax(this.currentState, 2, this.depthOfSearch);
 								
 								//check for end of the game
 								if (this.currentState.checkLose(1))
 									{
-										System.out.println("The black player is win!");
+										showPopUpWindow("The black player is won!",2000);     
 										break;
 									}
 								
@@ -440,7 +502,7 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 								//check for end of the game
 								if (this.currentState.checkLose(1))
 									{
-										System.out.println("The black player is win!");
+										showPopUpWindow("The black player is won!",2000); 
 										break;
 									}
 								
@@ -450,7 +512,7 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 								//check for end of the game
 								if (this.currentState.checkLose(2))
 									{
-										System.out.println("The white player is win!");
+									 	showPopUpWindow("The white player is won!",2000); 
 										break;
 									}
 							}
@@ -501,24 +563,36 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 	      }
 	    }
 	
-	
+	//system method for drag and drop, is not used
 	@Override
 	public Object getTransferData(DataFlavor flavor)
 			throws UnsupportedFlavorException, IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
+	//system method for drag and drop, is not used
 	@Override
 	public DataFlavor[] getTransferDataFlavors() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	//system method for drag and drop, is not used
 	@Override
 	public boolean isDataFlavorSupported(DataFlavor flavor) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+	
+	//change listener for the slider
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		JSlider source = (JSlider)e.getSource();
+	    if (!source.getValueIsAdjusting()) 
+	    {
+	    	this.depthOfSearch = (int)source.getValue();
+	    }
 	}
 	
 }

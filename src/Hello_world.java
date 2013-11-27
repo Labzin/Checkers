@@ -36,42 +36,9 @@ public class Hello_world {
 			Board.Start();
 					
 			
-			//Board.DrawMove(Repr);
-			
-			//MinMaxAI AI = new MinMaxAI();
-			//AI.simulation();
-			
-			//Board.simulation(1);
-			
-			//Moves =	Repr.MoveFunction(5, 3);
-			
-			//System.out.println(Moves.size());
-			//System.in.read();
-			
-			/*for (int i=0; i < Moves.size(); i++) 
-			{ 
-								
-				System.out.println(i);
-				System.out.println(i);
-				System.out.println(i);
-				System.out.println(i);
-				
-				Board = new CheckersBoard(Moves.get(i),1);
-				Board.Start();
-				
-				
-				Moves.get(i).PositionPrint();
-				
-				//Board.DrawState(Moves.get(i));		
-			}
+			Board.simulation(1);
 			
 			
-			//} catch (IOException ex) {
-							//     ex.printStackTrace();
-		//}
-        
-
-	}*/
 
 	}
 }
