@@ -10,8 +10,6 @@ import javax.imageio.ImageIO;
 public class Hello_world {
 	public static void main(String args[])
 	{
-		//try{
-	
 			StateRepresent Repr = new StateRepresent();
 			
 			
@@ -24,21 +22,14 @@ public class Hello_world {
 				    {7, 1, 7, 1, 7, 1, 7, 1},
 					{1, 7, 1, 7, 1, 7, 1, 7},
 					{7, 1, 7, 1, 7, 1, 7, 1}};
-
 			
-			ArrayList<StateRepresent> Moves = new ArrayList<StateRepresent>();
 			
-			System.out.println("H:"+Repr.heuristicDifference());
-
 			Repr.states = states;
 			
 			CheckersBoard Board = new CheckersBoard(Repr, 1);
 			Board.Start();
 					
-			
-			Board.simulation(1);
-			
-			
+			//Board.simulation(1);
 
 	}
 }

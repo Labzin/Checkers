@@ -20,17 +20,7 @@ public  class MinMaxAI {
 			{7, 0, 7, 0, 7, 0, 7, 0}};
 	
 	
-	BoardThread board;
-	
-	
-	public MinMaxAI(){
-		Repr.states = states;
-		//linkAI.set(this);
-		//board = new BoardThread(Repr, 1, linkAI);
-	}
-	
-	
-	
+		
 	public StateRepresent startMinMax(StateRepresent startState, int colour_of_turn, int depthOfSearch)
 	{
 		ArrayList<StateRepresent> successors = startState.SuccessorsFunc(colour_of_turn);
@@ -182,10 +172,10 @@ public  class MinMaxAI {
 	public void SimpleTimeDelay(long timeDelay)
 	{
 		long currentTime = System.currentTimeMillis();
-		
+		int count = 0;
 		while ((System.currentTimeMillis() - currentTime) < timeDelay)
 		{
-			
+			//Thread.sleep(1000);	
 		}
 	}
 }

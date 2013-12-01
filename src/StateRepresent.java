@@ -52,14 +52,14 @@ public class StateRepresent {
 			   {
 				   //number of pieces, black pieces			   
 				   if (this.states[i][j] == 2)
-						numberOfBlakPiesces++;
+						numberOfBlakPiesces= numberOfBlakPiesces + 1;
 				   
 				   if (this.states[i][j] == 4)
 					   numberOfBlakPiesces = numberOfBlakPiesces + 2;
 				   
 				   //number of white pieces
 				   if (this.states[i][j] == 1)
-						numberOfWhitePiesces++;
+						numberOfWhitePiesces = numberOfWhitePiesces + 1;
 				   
 				   if (this.states[i][j] == 3)
 					   numberOfWhitePiesces = numberOfWhitePiesces + 2;

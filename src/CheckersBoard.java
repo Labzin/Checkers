@@ -5,6 +5,7 @@ import javax.swing.JFrame;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.Popup;
@@ -58,6 +59,7 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
     private JPanel leftPanel = new JPanel();
     private JPanel sliderPanel = new JPanel();
     private JButton buttonStart = new JButton("Start");
+    private JButton buttonInformation = new JButton("?");
     
 	private PanelIm[][] spots= new PanelIm[8][8];
 	private JLabel[][]  spotsLabels = new JLabel[8][8];
@@ -100,7 +102,25 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 	JSlider depthOfSearchSlider = new JSlider(3,15,3);
 	int  depthOfSearch = 3;
 	
+	//link to current component
 	private Component currentComponent = this;
+	
+	String tutorial_guidance = "Black moves first and play proceeds alternately. From their initial positions, checkers may only move forward.\n"
+    		+ "There are two types of moves that can be made, capturing moves and non-capturing moves.\n"
+    		+ "Non-capturing moves are simply a diagonal move forward from one square to an adjacent square.\n"
+    		+ "Capturing moves occur when a player 'jumps' an opposing piece. This is also done on the diagonal\n"
+    		+ " and can only happen when the square behind (on the same diagonal) is also open. This means that you may not jump an opposing piece around a corner.\n"
+    		+ "The victory will be due to complete elimination.\n\n"
+    		+ "Capturing Move:\n"
+    		+ "On a capturing move, a piece may make multiple jumps. If after a jump a player is in a position to make another jump then he may do so.\n"
+    		+ "This means that a player may make several jumps in succession, capturing several pieces on a single turn.\n\n"
+    		+ "Forced Captures:\n"
+    		+ "When a player is in a position to make a capturing move, he must make a capturing move.\n"
+    		+ "When he has more than one capturing move to choose from he may take whichever move suits him.\n\n"
+    		+ "Kings:\n"
+    		+ "When a checker achieves the opponent's edge of the board (called the 'king's row') it is crowned with another checker.\n" 
+    		+ "This signifies that the checker has been made a king. The king now gains an added ability to move backward.\n" 
+    		+ "The king may now also jump in either direction or even in both directions in one turn (if he makes multiple jumps).";
 	
     public CheckersBoard(StateRepresent state, int colour_of_turn) {
     	
@@ -115,8 +135,8 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
     	
         try {
         	//images for fields 
-        	this.wField = ImageIO.read(new File("n:/WField.jpg"));
-			this.bField = ImageIO.read(new File("n:/BField.jpg"));
+        	this.wField = ImageIO.read(this.getClass().getResource("/images/WField.jpg"));
+			this.bField = ImageIO.read(this.getClass().getResource("/images/BField.jpg"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -127,19 +147,19 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
         
         //cursor for drag and drop
         Toolkit toolkit = Toolkit.getDefaultToolkit();
-        Image imageW = toolkit.getImage("n:/WCursor.gif");
+        Image imageW = toolkit.getImage(this.getClass().getResource("/images/WCursor.gif"));
         cursorW = toolkit.createCustomCursor(imageW , new Point(0, 0), "img");
         
-        Image imageB = toolkit.getImage("n:/BCursor.gif");
+        Image imageB = toolkit.getImage(this.getClass().getResource("/images/BCursor.gif"));
         cursorB = toolkit.createCustomCursor(imageB , new Point(0, 0), "img"); 
         
         //icons for jLabel
-        wPiece = new ImageIcon("n:/WPieceS.jpg");
-        bPiece = new ImageIcon("n:/BPieceS.jpg");
-        bPieceKing = new ImageIcon("n:/BPieceSking.jpg");
-        wPieceKing = new ImageIcon("n:/WPieceSking.jpg");
+        wPiece = new ImageIcon(this.getClass().getResource("/images/WPieceS.jpg"));
+        bPiece = new ImageIcon(this.getClass().getResource("/images/BPieceS.jpg"));
+        bPieceKing = new ImageIcon(this.getClass().getResource("/images/BPieceSking.jpg"));
+        wPieceKing = new ImageIcon(this.getClass().getResource("/images/WPieceSking.jpg"));
         
-        stepMark = new ImageIcon("n:/stepMarkS.gif");
+        stepMark = new ImageIcon(this.getClass().getResource("/images/stepMarkS.gif"));
         
         //turn and successors
         current_colour_of_turn = colour_of_turn;
@@ -187,13 +207,14 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 			System.out.println("step");
 			state.transSteps.get(i).PositionPrint();
 			
-			sudoAI.SimpleTimeDelay(300);
+			sudoAI.SimpleTimeDelay(1000);
 		}
 		
 		//sudoAI.SimpleTimeDelay(300);
 		
 		System.out.println("step1");
 		this.currentState = state;
+		this.currentState.PositionPrint();
 		successors =  currentState.SuccessorsFunc(current_colour_of_turn);
 		
 		this.Draw();
@@ -239,23 +260,24 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 							
 			
 			//set numbers
-			leftPanel.setLayout(new GridLayout(8, 0));
-			downPanel.setLayout(new GridLayout(0, 8));
-	        for (int i = 0; i < 8; i++) {
-	            leftPanel.add(new JLabel(String.valueOf(i) + ""));
-	            downPanel.add(new JLabel("               " +String.valueOf(i) + ""));     
-	        }
+			//leftPanel.setLayout(new GridLayout(8, 0));
+			//downPanel.setLayout(new GridLayout(0, 8));
+	        //for (int i = 0; i < 8; i++) {
+	        //    leftPanel.add(new JLabel(String.valueOf(i) + ""));
+	        //    downPanel.add(new JLabel("               " +String.valueOf(i) + ""));     
+	        //}
 	        
-	        //set button listener
+	        //set start button listener
 	        buttonStart.addActionListener(new ActionListener() {
 	            @Override
 	            public void actionPerformed(ActionEvent event) {
 	            	//set start state
 	                currentState = new StateRepresent();
 	                successors =  currentState.SuccessorsFunc(current_colour_of_turn);
-	                Draw();	            	        	       	          	
+	                Draw();
 	           }
 	        });
+	        
 	        
 	        sliderPanel.setLayout(new GridLayout(0, 2));
 	        //add slider
@@ -263,12 +285,24 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 	        //add button
 	        sliderPanel.add(buttonStart);
 	        
+	        //set information button listener
+	        buttonInformation.addActionListener(new ActionListener() {
+	            @Override
+	            public void actionPerformed(ActionEvent event) {
+	            	//show tutorial guidance
+	                JOptionPane.showMessageDialog(currentComponent, tutorial_guidance, "Tutorial guidance", JOptionPane.INFORMATION_MESSAGE); 
+	           }
+	        });
+	        leftPanel.setLayout(new GridLayout(8, 0));
+	        leftPanel.add(buttonInformation);
+	        
 	        Panel.add(leftPanel, BorderLayout.WEST);
 			Panel.add(mainPanel, BorderLayout.CENTER);
 			//Panel.add(downPanel, BorderLayout.SOUTH);
 			Panel.add(sliderPanel, BorderLayout.SOUTH);
 		}
 	
+	//show message about winner
 	private void showPopUpWindow(String text, int timeToShow)
 	{
 		JButton label = new JButton(text);
@@ -316,16 +350,19 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 		this.repaint();
 	}
 	
-	
 	public void simulation(int colour_of_turn)
 	{
 		while (!((this.currentState.checkLose(1))||(this.currentState.checkLose(2))))
 		{
 			//try 
 			//{
-				this.currentState =  sudoAI.startMinMax(this.currentState, 1, 10);
+			   StateRepresent newStape;
+			
+			   this.currentState =  sudoAI.startMinMax(this.currentState, 1, 3);
+				
+				
 				this.Draw();
-					
+				
 				if (this.currentState.checkLose(2))
 						{
 							showPopUpWindow("The white player is won!",2000);
@@ -333,21 +370,18 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 						}
 				sudoAI.SimpleTimeDelay(1000);
 				
-				this.currentState =  sudoAI.startMinMax(this.currentState, 2, 3);
+				this.currentState =  sudoAI.startMinMax(this.currentState, 2, 15);
 				//sudoAI.randomStep(this.currentState, 2);
+				
 				this.Draw();	
 				
 				if (this.currentState.checkLose(1))
 				{
 					showPopUpWindow("The black player is won!",2000);
+					break;
 				}
 				
 				sudoAI.SimpleTimeDelay(1000);
-				
-			//} catch (InterruptedException e) {
-			//	// TODO Auto-generated catch block
-			//	e.printStackTrace();
-			//}
 			
 		}
 		
