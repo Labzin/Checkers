@@ -51,9 +51,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.TooManyListenersException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class CheckersBoard extends JFrame implements DragGestureListener, Transferable, ChangeListener   {
-
 	private JPanel mainPanel = new JPanel();
 	private JPanel downPanel = new JPanel();
     private JPanel leftPanel = new JPanel();
@@ -65,7 +66,11 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 	private JLabel[][]  spotsLabels = new JLabel[8][8];
 	private Image wField;
 	private Image bField;
-	
+
+	// path to import images
+	private String absolutePath = Paths.get("").toAbsolutePath().toString();
+	private String imagesPath =  absolutePath.concat("/images/");
+
 	//icons for jLabel
 	private ImageIcon bPiece;
 	private ImageIcon wPiece;
@@ -131,12 +136,28 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
     	depthOfSearchSlider.setPaintLabels(true);
     	depthOfSearchSlider.setPreferredSize(new Dimension(400,50));
     	
-    	
-    	
         try {
-        	//images for fields 
-        	this.wField = ImageIO.read(this.getClass().getResource("/images/WField.jpg"));
-			this.bField = ImageIO.read(this.getClass().getResource("/images/BField.jpg"));
+        	//images for fields
+			this.wField = ImageIO.read(new File(this.imagesPath.concat("WField.jpg")));
+			this.bField = ImageIO.read(new File(this.imagesPath.concat("BField.jpg")));
+
+			//cursor for drag and drop
+			Toolkit toolkit = Toolkit.getDefaultToolkit();
+
+			Image imageW = toolkit.getImage(this.imagesPath.concat("WCursor.gif"));
+			cursorW = toolkit.createCustomCursor(imageW , new Point(0, 0), "img");
+
+			Image imageB = toolkit.getImage(this.imagesPath.concat("BCursor.gif"));
+			cursorB = toolkit.createCustomCursor(imageB , new Point(0, 0), "img");
+
+			//icons for jLabel
+			wPiece = new ImageIcon(this.imagesPath.concat("WPieceS.jpg"));
+			bPiece = new ImageIcon(this.imagesPath.concat("BPieceS.jpg"));
+			bPieceKing = new ImageIcon(this.imagesPath.concat("BPieceSking.jpg"));
+			wPieceKing = new ImageIcon(this.imagesPath.concat("WPieceSking.jpg"));
+
+			stepMark = new ImageIcon(this.imagesPath.concat("stepMarkS.gif"));
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -145,22 +166,7 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
         
         linkBoard.set(this);
         
-        //cursor for drag and drop
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
-        Image imageW = toolkit.getImage(this.getClass().getResource("/images/WCursor.gif"));
-        cursorW = toolkit.createCustomCursor(imageW , new Point(0, 0), "img");
-        
-        Image imageB = toolkit.getImage(this.getClass().getResource("/images/BCursor.gif"));
-        cursorB = toolkit.createCustomCursor(imageB , new Point(0, 0), "img"); 
-        
-        //icons for jLabel
-        wPiece = new ImageIcon(this.getClass().getResource("/images/WPieceS.jpg"));
-        bPiece = new ImageIcon(this.getClass().getResource("/images/BPieceS.jpg"));
-        bPieceKing = new ImageIcon(this.getClass().getResource("/images/BPieceSking.jpg"));
-        wPieceKing = new ImageIcon(this.getClass().getResource("/images/WPieceSking.jpg"));
-        
-        stepMark = new ImageIcon(this.getClass().getResource("/images/stepMarkS.gif"));
-        
+
         //turn and successors
         current_colour_of_turn = colour_of_turn;
         successors = currentState.SuccessorsFunc(current_colour_of_turn);
@@ -186,35 +192,26 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
         
         this.Draw();
         
-        
-        
 		}
 	
 	//draw move regular or step-by-step
-	public void DrawMove(StateRepresent state)
-	{
+	public void DrawMove(StateRepresent state) {
 		
 		//draw step-by-step
 		for (int i=0; i < state.transSteps.size(); i++) 
 		{ 
 			this.currentState = new StateRepresent(state.transSteps.get(i).states, state.depth + 1, state);
-			
+			System.out.println(state.transSteps);
 			this.Draw();
-			   
-			this.currentState.PositionPrint();
-			
-			System.out.println();
-			System.out.println("step");
-			state.transSteps.get(i).PositionPrint();
-			
-			sudoAI.SimpleTimeDelay(1000);
+//			this.currentState.PositionPrint();
+//			state.transSteps.get(i).PositionPrint();
+//			sudoAI.SimpleTimeDelay(1000);
 		}
 		
-		//sudoAI.SimpleTimeDelay(300);
+		sudoAI.SimpleTimeDelay(400);
 		
-		System.out.println("step1");
 		this.currentState = state;
-		this.currentState.PositionPrint();
+//		this.currentState.PositionPrint();
 		successors =  currentState.SuccessorsFunc(current_colour_of_turn);
 		
 		this.Draw();
@@ -226,8 +223,7 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 		{
 			GridLayout gridLayout = new GridLayout(8, 8);
 			mainPanel.setLayout(gridLayout);
-			
-			
+
 			for (int row = 0; row < 8; row++) 
 			{
 	            for (int col = 0; col < 8; col++) 
@@ -257,16 +253,7 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 	            }	                	
 	         }
 									
-							
-			
-			//set numbers
-			//leftPanel.setLayout(new GridLayout(8, 0));
-			//downPanel.setLayout(new GridLayout(0, 8));
-	        //for (int i = 0; i < 8; i++) {
-	        //    leftPanel.add(new JLabel(String.valueOf(i) + ""));
-	        //    downPanel.add(new JLabel("               " +String.valueOf(i) + ""));     
-	        //}
-	        
+
 	        //set start button listener
 	        buttonStart.addActionListener(new ActionListener() {
 	            @Override
@@ -326,7 +313,6 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 	//draw current state representation
 	public void Draw()
 	{
-		System.out.println("!!!!!!!!!!!!");
 		for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
             	switch (currentState.states[row][col]){
@@ -350,17 +336,16 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 		this.repaint();
 	}
 	
-	public void simulation(int colour_of_turn)
+	public void simulation(int colour_of_turn, int white_AI_depth,  int black_AI_depth)
 	{
+		System.out.println("White AI depth: " + white_AI_depth);
+		System.out.println("Black AI depth: " + black_AI_depth);
 		while (!((this.currentState.checkLose(1))||(this.currentState.checkLose(2))))
 		{
-			//try 
-			//{
 			   StateRepresent newStape;
-			
-			   this.currentState =  sudoAI.startMinMax(this.currentState, 1, 3);
-				
-				
+
+			   this.currentState =  sudoAI.startMinMax(this.currentState, 1, white_AI_depth);
+
 				this.Draw();
 				
 				if (this.currentState.checkLose(2))
@@ -370,7 +355,7 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 						}
 				sudoAI.SimpleTimeDelay(1000);
 				
-				this.currentState =  sudoAI.startMinMax(this.currentState, 2, 15);
+				this.currentState =  sudoAI.startMinMax(this.currentState, 2, black_AI_depth);
 				//sudoAI.randomStep(this.currentState, 2);
 				
 				this.Draw();	
@@ -474,7 +459,7 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 			//write coordinates for the drug piece
 			iStart = i;
 			jStart = j;
-			System.out.println(iStart + " " + jStart);
+//			System.out.println(iStart + " " + jStart);
 		}
 	}
 	
@@ -494,24 +479,14 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 						//condition for became black king
 						(successors.get(k).states[iDestination][jDestination] == 4)&&(iDestination==7)&&(currentState.states[iStart][jStart]==2)))
 						{
-							//change the board state
-							//this.currentState = new StateRepresent(successors.get(k).states, this.currentState.depth + 1, this.currentState);
-							
-							
+
 						    this.DrawMove(successors.get(k));
 							
-							this.currentState.PositionPrint();
+//							this.currentState.PositionPrint();
 							//this.Draw();
-							
-							System.out.println();
-							System.out.println();
-							/*if (current_colour_of_turn ==1)	
-								current_colour_of_turn = 2;
-							else
-								current_colour_of_turn = 1;*/
-							
+
 			   			    //move of the opponent
-							if (current_colour_of_turn ==1) 
+							if (current_colour_of_turn == 1)
 							{
 								//check for end of the game
 								if (this.currentState.checkLose(2))
@@ -583,9 +558,6 @@ public class CheckersBoard extends JFrame implements DragGestureListener, Transf
 	     //
 	      public void drop(DropTargetDropEvent event) {
 	        try {
-	        	
-	        	System.out.println(i + " " + j);
-	        	
 	        	//run in the main Board!!
 	        	board.get().makeMove(i,j);
 

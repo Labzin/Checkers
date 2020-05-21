@@ -22,8 +22,7 @@ public class StateRepresent {
 	public StateRepresent(){
 		this.depth = 2;
 	}
-	
-	
+
 	//add transitional step for multi-steps
     public void addTransStep(StateRepresent transStep)
     {
@@ -93,7 +92,7 @@ public class StateRepresent {
 		{
 		   for (int j = 0; j<8;j++) {System.out.print(this.states[i][j] + "   ");} 
 		   System.out.println("");
-           System.out.println(""); 
+           System.out.println("");
 	    }
 	}
 	

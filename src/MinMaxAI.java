@@ -42,7 +42,7 @@ public  class MinMaxAI {
 				
 				maxForWhite_current = this.recursivMinMax((StateRepresent)successors.get(i), 2, (depthOfSearch - 1), a, b);
 				
-				System.out.println("Heuristic white"+ maxForWhite_current);
+//				System.out.println("Heuristic white"+ maxForWhite_current);
 				
 				if (maxForWhite_current > maxForWhite)
 				{
@@ -63,7 +63,7 @@ public  class MinMaxAI {
 			{			
 				minForBlack_current = this.recursivMinMax((StateRepresent)successors.get(i), 1, (depthOfSearch - 1), a, b);
 				
-				System.out.println("Heuristic black"+ minForBlack_current);
+//				System.out.println("Heuristic black"+ minForBlack_current);
 				
 				if (minForBlack_current < minForBlack)
 				{
@@ -81,7 +81,7 @@ public  class MinMaxAI {
 			}
 		}
 		
-		System.out.println("Best moves "+ goodMoves.size());
+//		System.out.println("Best moves "+ goodMoves.size());
 		//return random move from list of best moves with equal quality
 		return 	(goodMoves.get((int)(goodMoves.size()*Math.random())));
 
@@ -167,15 +167,13 @@ public  class MinMaxAI {
 			return (successors.get((int)(successors.size()*Math.random())));
 	}
 
-	
-	
+
 	public void SimpleTimeDelay(long timeDelay)
 	{
 		long currentTime = System.currentTimeMillis();
-		int count = 0;
 		while ((System.currentTimeMillis() - currentTime) < timeDelay)
 		{
-			//Thread.sleep(1000);	
+//			Thread.sleep(1000);
 		}
 	}
 }
