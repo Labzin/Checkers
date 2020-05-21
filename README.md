@@ -3,4 +3,4 @@ The game of checkers implemented from scratch with the classical minimax algorit
 
 A course project as part of my master's degree.
 
-![Game example](Chackers_example.png)
+<img src="Chackers_example.png" width="535" height="400" title="Game example">
